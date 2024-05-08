@@ -1,20 +1,21 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: mutating-webhook
+  name: gke-spot-mutating-webhook
+  namespace: webhook
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mutating-webhook
+      app: gke-spot-mutating-webhook
   template:
     metadata:
       labels:
-        app: mutating-webhook
+        app: gke-spot-mutating-webhook
     spec:
       containers:
-        - name: mutating-webhook
-          image: localhost:5000/mutating-webhook:latest
+        - name: gke-spot-mutating-webhook
+          image: dorkamotorka/gke-spot-mutate-webhook:0.6
           imagePullPolicy: Always
           ports:
             - containerPort: 443
@@ -25,4 +26,4 @@ spec:
       volumes:
         - name: cert
           secret:
-            secretName: server-cert
+            secretName: gke-spot-webhook-tls

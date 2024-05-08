@@ -28,8 +28,8 @@ var (
 
 var rootCmd = &cobra.Command{
 	Use:   "mutating-webhook",
-	Short: "Kubernetes mutating webhook example",
-	Long: `Example showing how to implement a basic mutating webhook in Kubernetes.
+	Short: "Kubernetes mutating webhook fo gke-spot label",
+	Long: `gke-spot label basic mutating webhook in Kubernetes.
 
 Example:
 $ mutating-webhook --tls-cert <tls_cert> --tls-key <tls_key> --port <port>`,
@@ -119,13 +119,13 @@ func mutatePod(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a response that will add a label to the pod if it does
-	// not already have a label with the key of "hello". In this case
+	// not already have a label with the key of "cloud.google.com/gke-spot". In this case
 	// it does not matter what the value is, as long as the key exists.
 	admissionResponse := &admissionv1.AdmissionResponse{}
 	var patch string
 	patchType := v1.PatchTypeJSONPatch
-	if _, ok := pod.Labels["hello"]; !ok {
-		patch = `[{"op":"add","path":"/metadata/labels","value":{"hello":"world"}}]`
+	if _, ok := pod.Spec.NodeSelector["cloud.google.com/gke-spot"]; !ok {
+		patch = `[{"op":"add","path":"/spec/nodeSelector/cloud.google.com~1gke-spot","value": "true"}]`
 	}
 
 	admissionResponse.Allowed = true

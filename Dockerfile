@@ -1,4 +1,12 @@
-FROM ubuntu:focal
-WORKDIR /opt
-COPY ./bin/mutating-webhook .
-CMD ["./mutating-webhook", "--tls-cert", "/etc/opt/tls.crt", "--tls-key", "/etc/opt/tls.key"]
+FROM golang:1.22
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+
+RUN go build -o /main
+
+CMD ["/main", "--tls-cert", "/etc/opt/tls.crt", "--tls-key", "/etc/opt/tls.key"]

@@ -1,10 +1,11 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: mutating-webhook
+  name: gke-spot-pod-mutating-webhook-service
+  namespace: webhook
 spec:
   selector:
-    app: mutating-webhook
+    app: gke-spot-mutating-webhook
   ports:
     - port: 443
       targetPort: 443

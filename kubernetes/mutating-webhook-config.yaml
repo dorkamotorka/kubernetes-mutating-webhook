@@ -1,21 +1,37 @@
-kind: MutatingWebhookConfiguration
 apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
 metadata:
-  name: pod-label-add
+  name: gke-spot-pod-label-add
   annotations:
-    cert-manager.io/inject-ca-from: default/client
+    cert-manager.io/inject-ca-from: webhook/gke-spot-webhook-tls
 webhooks:
-  - name: pod-label-add.trstringer.com
-    clientConfig:
-      service:
-        namespace: default
-        name: mutating-webhook
-        path: /mutate
-    rules:
-      - apiGroups: [""]
-        apiVersions: ["v1"]
-        resources: ["pods"]
-        operations: ["CREATE"]
-        scope: Namespaced
-    sideEffects: None
-    admissionReviewVersions: ["v1"]
+- name: gke-spot-pod-label-add.dorkamotorka.dev
+  failurePolicy: Ignore
+  clientConfig:
+    service:
+      namespace: webhook
+      name: gke-spot-pod-mutating-webhook-service
+      path: /mutate
+  rules:
+  - apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+    operations: ["CREATE", "UPDATE"]
+    scope: Namespaced
+  sideEffects: None
+  admissionReviewVersions: ["v1"]
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gke-spot-webhook-certificate
+  namespace: webhook
+spec:
+  secretName: gke-spot-webhook-certificate
+  dnsNames:
+  - gke-spot-pod-mutating-webhook-service.webhook.svc
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-staging
